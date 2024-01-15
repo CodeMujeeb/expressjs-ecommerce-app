@@ -12,16 +12,21 @@ app.set('views', 'views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const sequelize = require('./util/database');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use((req, res, next) => {
-    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    next();
-  });
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
 app.use(errorController.get404);
+
+sequelize.sync().then(response => {
+}).catch(error => {
+});
 
 app.listen(3000);
