@@ -206,3 +206,24 @@ form {
     display: none;
   }
 }
+
+.w-30 {
+  width: 30%;
+}
+.w-50 {
+  width: 50%;
+}
+.table {
+  width: 80%;
+  border: 1px solid gray;
+  border-collapse: collapse;
+}
+.table tr td {
+  border: 1px solid gray;
+}
+.center {
+  margin: auto;
+}
+.table-no-border tr td{
+  border: 0px;
+}
