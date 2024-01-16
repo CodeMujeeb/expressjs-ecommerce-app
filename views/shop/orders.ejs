@@ -7,16 +7,28 @@
             <% if (orders.length <=0) { %>
             <h1>Nothing there!</h1>
             <% } else { %>
-                <ul>
+                <table class="table">
+                    <th>Order Id</th>
+                    <th>Products</th>
                     <% orders.forEach(order => { %>
-                        <li><%= order.id %></li>
-                        <ul>
-                            <% order.products.forEach(product => { %>
-                            <li><%= product.title %></li>
+                        <tr>
+                        <td class="w-30 centered"><%= order.id %></td>
+                        <td class="w-50">
+                            <table class="table-no-border center">
+                                <% order.products.forEach(product => { %>
+                                <tr>
+                                    <td><img src="<%= product.imageUrl %>" style="width:80px;height: 60px"></li>
+                                    <td><span style="margin-left: 1em;">
+                                        <%= product.title %>
+                                    </span>
+                                </td>
+                                </tr>
                             <% }) %>
-                        </ul>
+                            </table>
+                        </td>
+                        </tr>
                     <% }) %>
-                </ul>
+                    </table>
             <% } %>
         </main>
         <%- include('../includes/end.ejs') %>
