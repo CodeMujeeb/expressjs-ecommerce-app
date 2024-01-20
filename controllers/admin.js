@@ -20,11 +20,11 @@ exports.postAddProduct = (req, res, next) => {
     price,
     description
   }).then(response => {
-
+    req.flash('info', 'Product has been added successfully!');
+    res.redirect('/');
   }).catch(err => {
     console.log(err);
   });
-  res.redirect('/');
 };
 
 exports.getEditProduct = (req, res, next) => {

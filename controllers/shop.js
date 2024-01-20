@@ -1,5 +1,5 @@
 const Product = require('../models/product');
-const ITEMS_PER_PAGE = 1;
+const ITEMS_PER_PAGE = 10;
 
 exports.getProducts = (req, res, next) => {
   Product.findAll().then(products => {
