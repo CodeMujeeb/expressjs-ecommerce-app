@@ -85,21 +85,9 @@ User.hasMany(Order)
 Order.belongsToMany(Product, { through: OrderItem })
 
 sequelize
-  .sync({ force: true })
-  // .sync()
+  // .sync({ force: true })
+  .sync()
   .then(result => {
-    return User.findByPk(1);
-  })
-  .then(user => {
-    if (!user) {
-      return User.create({ name: 'Abdul', email: 'abdul@test.com' });
-    }
-    return user;
-  })
-  .then(user => {
-    return user.createCart();
-  })
-  .then(cart => {
     app.listen(3000);
   })
   .catch(err => {
