@@ -8,8 +8,10 @@ const cookieParser = require('cookie-parser')
 require('dotenv').config()
 const flash = require('connect-flash');
 const session = require('express-session');
-
+const MySQLStore = require('express-mysql-session')(session);
 const errorController = require('./controllers/error');
+const databaseOptions = require('./util/database-options')
+const sessionStore = new MySQLStore(databaseOptions);
 
 const app = express();
 
@@ -54,7 +56,7 @@ app.use(
     secret: 'my secret',
     resave: false,
     saveUninitialized: false,
-    // store: store
+    store: sessionStore
   })
 );
 

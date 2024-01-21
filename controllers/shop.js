@@ -1,4 +1,8 @@
+const fs = require('fs')
+
 const Product = require('../models/product');
+const Order = require('../models/order');
+const path = require('path');
 const ITEMS_PER_PAGE = 10;
 
 exports.getProducts = (req, res, next) => {
@@ -152,4 +156,30 @@ exports.postOrder = (req, res, next) => {
   }).then(result => {
     res.redirect('/orders')
   }).catch(err => console.log(err))
+}
+
+exports.downloadInvoice = (req, res, next) => {
+  const orderId = req.params.orderId;
+  const invoiceName = 'Invoice-' + orderId + '.pdf';
+  const invoicePath = path.join('data', 'invoices', invoiceName)
+  let userOrder;
+  Order.findOne({ where: { id: orderId } })
+    .then(order => {
+      if (!order) {
+        return next(new Error('No Order Found'))
+      }
+      userOrder = order
+      return order.getUser();
+    })
+    .then(user => {
+      if (req.user.id.toString() !== user.id.toString()) {
+        return next(new Error('Unauthorized access'))
+      }
+      const file = fs.createReadStream(invoicePath)
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename=Ecommerce Shop - ${invoiceName}`);
+      file.pipe(res)
+    }).catch(err => {
+      console.log(err)
+    })
 }

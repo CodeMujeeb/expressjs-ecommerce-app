@@ -10,10 +10,11 @@
                 <table class="table">
                     <th>Order Id</th>
                     <th>Products</th>
+                    <th>Invoice</th>
                     <% orders.forEach(order => { %>
                         <tr>
-                        <td class="w-30 centered"><%= order.id %></td>
-                        <td class="w-50">
+                        <td class="centered"><%= order.id %></td>
+                        <td class="">
                             <table class="table-no-border center">
                                 <% order.products.forEach(product => { %>
                                 <tr>
@@ -26,6 +27,7 @@
                             <% }) %>
                             </table>
                         </td>
+                        <td><a href="/orders/<%= order.id %>/invoice">Download Invoice</a></td>
                         </tr>
                     <% }) %>
                     </table>

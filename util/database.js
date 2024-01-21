@@ -1,7 +1,9 @@
+const databaseOptions = require('./database-options')
+
 const Sequelize = require('sequelize')
 
-const sequelize = new Sequelize('express_ecommerce_app', 'valet', 'cc', {
-    host: "localhost",
+const sequelize = new Sequelize(databaseOptions.database, databaseOptions.user, databaseOptions.password, {
+    host: databaseOptions.host,
     dialect: "mysql"
 })
 
