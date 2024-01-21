@@ -73,25 +73,30 @@ exports.getCart = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
-  console.log('USER', req.user)
   let fetchedCart;
   let product;
   let newQuantity = 1;
-
-  req.user.getCart().then(cart => {
-    fetchedCart = cart
-    return cart.getProducts({ where: { id: prodId } })
-  }).then(products => {
-    if (products.length > 0) {
-      product = products[0];
+  req.user.getCart().then(userCart => {
+    if (!userCart) {
+      return req.user.createCart()
     }
-    if (product) {
-      const oldQuantity = product.cartItem.quantity;
-      newQuantity = oldQuantity + 1;
-      return product;
-    }
-    return Product.findByPk(prodId)
+    return userCart;
   })
+    .then(cart => {
+      fetchedCart = cart
+      return cart.getProducts({ where: { id: prodId } })
+    })
+    .then(products => {
+      if (products.length > 0) {
+        product = products[0];
+      }
+      if (product) {
+        const oldQuantity = product.cartItem.quantity;
+        newQuantity = oldQuantity + 1;
+        return product;
+      }
+      return Product.findByPk(prodId)
+    })
     .then(product => {
       return fetchedCart.addProduct(product, { through: { quantity: newQuantity } })
     })
