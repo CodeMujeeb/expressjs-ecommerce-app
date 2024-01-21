@@ -2,6 +2,7 @@ const path = require('path');
 
 const csurf = require("tiny-csrf");
 const express = require('express');
+const multer = require('multer');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser')
 require('dotenv').config()
@@ -14,6 +15,24 @@ const app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
+
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'images');
+  },
+  filename: function (req, file, cb) {
+    cb(null, new Date().toISOString() + '-' + file.originalname)
+  }
+})
+
+const fileFilters = (req, file, cb) => {
+  if (['image/png', 'image/jpg', 'image/jpeg'].includes(file.mimetype)) {
+    cb(null, true)
+  } else {
+    cb(null, false)
+  }
+
+}
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
@@ -28,7 +47,7 @@ const Order = require('./models/order');
 const OrderItem = require('./models/order-item');
 
 app.use(bodyParser.urlencoded({ extended: false }));
-
+app.use(multer({ dest: 'images', storage: fileStorage, fileFilter: fileFilters }).single('image'))
 app.use(cookieParser(process.env.CSRF_SECRET));
 app.use(
   session({
@@ -49,6 +68,8 @@ app.use(
 // );
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
 app.use(flash());
 
 app.use((req, res, next) => {
