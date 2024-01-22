@@ -41,7 +41,9 @@ exports.postAddProduct = (req, res, next) => {
     req.flash('info', 'Product has been added successfully!');
     res.redirect('/');
   }).catch(err => {
-    console.log(err);
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
   });
 };
 
@@ -63,7 +65,9 @@ exports.getEditProduct = (req, res, next) => {
       errorMessage: ''
     });
   }).catch(err => {
-    res.redirect('/admin/products');
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
   });
 };
 
@@ -88,7 +92,9 @@ exports.postEditProduct = (req, res, next) => {
       res.redirect('/admin/products')
     })
     .catch(err => {
-
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      next(error);
     });
 };
 
@@ -102,7 +108,10 @@ exports.getProducts = (req, res, next) => {
       activeShop: true,
       productCSS: true
     });
-  }).catch(error => {
+  }).catch(err => {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
   });
 };
 

@@ -12,7 +12,10 @@ exports.getProducts = (req, res, next) => {
       pageTitle: 'All Products',
       path: '/products'
     });
-  }).catch(error => {
+  }).catch(err => {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
   });
 };
 
@@ -50,7 +53,10 @@ exports.getIndex = (req, res, next) => {
           lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
         }
       });
-    }).catch(error => {
+    }).catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      next(error);
     });
 };
 
@@ -71,7 +77,9 @@ exports.getCart = (req, res, next) => {
       products: products
     });
   }).catch(err => {
-    console.log(err)
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
   });
 };
 
@@ -107,7 +115,9 @@ exports.postCart = (req, res, next) => {
     .then(cart => {
       res.redirect('/cart');
     }).catch(err => {
-
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      next(error);
     })
 };
 
@@ -121,6 +131,10 @@ exports.postCartDeleteProduct = (req, res, next) => {
     return product.cartItem.destroy();
   }).then(cartItem => {
     res.redirect('/cart');
+  }).catch(err => {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
   })
 };
 
@@ -155,7 +169,11 @@ exports.postOrder = (req, res, next) => {
     return fetchedCart.setProducts(null)
   }).then(result => {
     res.redirect('/orders')
-  }).catch(err => console.log(err))
+  }).catch(err => {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
+  })
 }
 
 exports.downloadInvoice = (req, res, next) => {
@@ -180,6 +198,8 @@ exports.downloadInvoice = (req, res, next) => {
       res.setHeader('Content-Disposition', `inline; filename=Ecommerce Shop - ${invoiceName}`);
       file.pipe(res)
     }).catch(err => {
-      console.log(err)
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      next(error);
     })
 }
