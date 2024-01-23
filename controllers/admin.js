@@ -1,5 +1,7 @@
 const product = require('../models/product');
 const Product = require('../models/product');
+const { removeStoragePrefix } = require('../util/helpers');
+const { deleteFile } = require('../util/file');
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
@@ -30,7 +32,7 @@ exports.postAddProduct = (req, res, next) => {
     });
   }
 
-  const imageUrl = image.path;
+  const imageUrl = removeStoragePrefix(image.path);
 
   Product.create({
     title,
@@ -82,7 +84,8 @@ exports.postEditProduct = (req, res, next) => {
     product.title = updatedTitle;
     product.description = updatedDesc;
     if (image) {
-      product.imageUrl = image.path;
+      deleteFile('storage/' + product.imageUrl)
+      product.imageUrl = removeStoragePrefix(image.path);
     }
     product.price = updatedPrice
     return product.save()
@@ -117,6 +120,18 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteById(prodId);
-  res.redirect('/admin/products');
+  Product.findByPk(prodId).then(product => {
+    if (!product) {
+      return next(new Error('Product not found.'))
+    }
+    deleteFile('storage/' + product.imageUrl, (err) => {
+
+    })
+    return product.destroy()
+  }).then(result => {
+    res.redirect('/admin/products');
+  }).catch(err => { 
+    console.log('err')
+    console.log(err)
+  })
 };

@@ -1,5 +1,6 @@
 const fs = require('fs')
-
+const ejs = require('ejs');
+const pdf = require('html-pdf');
 const Product = require('../models/product');
 const Order = require('../models/order');
 const path = require('path');
@@ -165,9 +166,9 @@ exports.postOrder = (req, res, next) => {
 exports.downloadInvoice = (req, res, next) => {
   const orderId = req.params.orderId;
   const invoiceName = 'Invoice-' + orderId + '.pdf';
-  const invoicePath = path.join('data', 'invoices', invoiceName)
   let userOrder;
-  Order.findOne({ where: { id: orderId } })
+
+  Order.findOne({ where: { id: orderId }, include: ['products'] })
     .then(order => {
       if (!order) {
         return next(new Error('No Order Found'))
@@ -179,10 +180,27 @@ exports.downloadInvoice = (req, res, next) => {
       if (req.user.id.toString() !== user.id.toString()) {
         return next(new Error('Unauthorized access'))
       }
-      const file = fs.createReadStream(invoicePath)
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `inline; filename=Ecommerce Shop - ${invoiceName}`);
-      file.pipe(res)
+
+      ejs.renderFile(path.join(__dirname, '../views/pdf/invoice.ejs'), {
+        pageTitle: invoiceName,
+        order: userOrder
+      }, (err, html) => {
+        if (err) {
+          throw new Error('Error reading pdf template');
+        }
+        // Options for the PDF generation
+        const options = {
+          format: 'Letter',
+        };
+        const pdfFilePath = path.join(__dirname, '../storage/invoices', invoiceName);
+        // Generate PDF from HTML
+        pdf.create(html, options).toFile(pdfFilePath, (err, result) => {
+          if (err) {
+            throw new Error('Error reading pdf template');
+          }
+          res.sendFile(result.filename);
+        });
+      });
     }).catch(err => {
       const error = new Error(err);
       error.httpStatusCode = 500;
