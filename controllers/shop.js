@@ -5,20 +5,6 @@ const Order = require('../models/order');
 const path = require('path');
 const ITEMS_PER_PAGE = 10;
 
-exports.getProducts = (req, res, next) => {
-  Product.findAll().then(products => {
-    res.render('shop/product-list', {
-      prods: products,
-      pageTitle: 'All Products',
-      path: '/products'
-    });
-  }).catch(err => {
-    const error = new Error(err);
-    error.httpStatusCode = 500;
-    next(error);
-  });
-};
-
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
   Product.findByPk(prodId).then(product => {

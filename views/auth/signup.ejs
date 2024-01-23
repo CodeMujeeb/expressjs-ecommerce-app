@@ -13,23 +13,35 @@
         <form class="login-form" action="/signup" method="POST" novalidate>
             <div class="form-control">
                 <label for="name">Full Name</label>
-                <input type="text" name="name" id="name" value="<%= oldInput.name %>">
+                <input class="<%= helpers.getFormFieldClass('name', validationErrors) %>" type="text" name="name" id="name" value="<%= oldInput.name %>">
+                <% if (validationErrors.name) { %>
+                    <span class="<%= helpers.getErrorClass() %>"><%= helpers.renderErrorMessage(validationErrors.name) %></span>
+                <% } %>
             </div>
 
             <div class="form-control">
                 <label for="email">E-Mail</label>
-                <input type="email" name="email" id="email" value="<%= oldInput.email %>">
+                <input class="<%= helpers.getFormFieldClass('email', validationErrors) %>" type="email" name="email" id="email" value="<%= oldInput.email %>">
+                <% if (validationErrors.email) { %>
+                    <span class="<%= helpers.getErrorClass() %>"><%= helpers.renderErrorMessage(validationErrors.email) %></span>
+                <% } %>
             </div>
             <div class="form-control">
                 <label for="password">Password</label>
-                <input type="password" name="password" id="password" value="<%= oldInput.password %>">
+                <input class="<%= helpers.getFormFieldClass('password', validationErrors) %>" type="password" name="password" id="password" value="<%= oldInput.password %>">
+                <% if (validationErrors.password) { %>
+                    <span class="<%= helpers.getErrorClass() %>"><%= helpers.renderErrorMessage(validationErrors.password) %></span>
+                <% } %>
             </div>
             <div class="form-control">
                 <label for="confirmPassword">Confirm Password</label>
                 <input type="password" name="confirmPassword" id="confirmPassword">
+                <% if (validationErrors.confirmPassword) { %>
+                    <span class="<%= helpers.getErrorClass() %>"><%= helpers.renderErrorMessage(validationErrors.confirmPassword) %></span>
+                <% } %>
             </div>
             <%- include('../includes/csrf.ejs') %>
-            <button class="btn" type="submit">Signup</button>
+            <button class="btn w-100 btn-fill" type="submit">CREATE ACCOUNT</button>
         </form>
     </main>
 <%- include('../includes/end.ejs') %>

@@ -9,6 +9,8 @@ require('dotenv').config()
 const flash = require('connect-flash');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
+const helpers = require('./util/helpers');
+
 const errorController = require('./controllers/error');
 const databaseOptions = require('./util/database-options')
 const sessionStore = new MySQLStore(databaseOptions);
@@ -92,7 +94,12 @@ app.use((req, res, next) => {
     .catch(err => console.log(err));
 });
 
-
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.helpers = helpers;
+  // res.locals.csrfToken = req.csrfToken();
+  next();
+});
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
