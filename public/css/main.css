@@ -205,7 +205,7 @@ form {
 
 .btn {
   display: inline-block;
-  padding: 0.25rem 1rem;
+  padding: 0.5rem 1rem;
   text-decoration: none;
   font: inherit;
   border: 1px solid #00695c;
@@ -309,4 +309,24 @@ form {
 }
 .table-no-border tr td{
   border: 0px;
+}
+span.error {
+  color: tomato;
+  font-size: 12px;
+  margin: 0;
+}
+
+input.error {
+  border: 1.5px solid tomato!important;
+}
+.w-100 {
+  width: 100%;
+}
+.mt-2 {
+  margin-top: 2em;
+}
+
+.btn-fill {
+  background-color: #00695c;
+  color: white;
 }
