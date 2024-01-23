@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser')
 require('dotenv').config()
 const flash = require('connect-flash');
 const session = require('express-session');
+const helpers = require('./util/helpers');
 
 const errorController = require('./controllers/error');
 
@@ -86,6 +87,7 @@ app.use((req, res, next) => {
 
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.helpers = helpers;
   // res.locals.csrfToken = req.csrfToken();
   next();
 });

@@ -1,17 +1,6 @@
 const Product = require('../models/product');
 const ITEMS_PER_PAGE = 10;
 
-exports.getProducts = (req, res, next) => {
-  Product.findAll().then(products => {
-    res.render('shop/product-list', {
-      prods: products,
-      pageTitle: 'All Products',
-      path: '/products'
-    });
-  }).catch(error => {
-  });
-};
-
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
   Product.findByPk(prodId).then(product => {

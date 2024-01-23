@@ -7,7 +7,6 @@ const User = require('../models/user');
 
 router.get('/login', authController.getLogin);
 
-router.get('/signup', authController.getSignup);
 
 router.post('/login',
     [
@@ -16,8 +15,9 @@ router.post('/login',
             .isLength({ min: 5 })
             .isAlphanumeric()
             .trim()
-    ],
-    authController.postLogin);
+    ], authController.postLogin);
+
+router.get('/signup', authController.getSignup);
 
 router.post('/signup',
     [
