@@ -1,5 +1,7 @@
 const product = require('../models/product');
 const Product = require('../models/product');
+const { removeStoragePrefix } = require('../util/helpers');
+const { deleteFile } = require('../util/file');
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
@@ -30,7 +32,7 @@ exports.postAddProduct = (req, res, next) => {
     });
   }
 
-  const imageUrl = image.path;
+  const imageUrl = removeStoragePrefix(image.path);
 
   Product.create({
     title,
@@ -41,7 +43,9 @@ exports.postAddProduct = (req, res, next) => {
     req.flash('info', 'Product has been added successfully!');
     res.redirect('/');
   }).catch(err => {
-    console.log(err);
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
   });
 };
 
@@ -63,7 +67,9 @@ exports.getEditProduct = (req, res, next) => {
       errorMessage: ''
     });
   }).catch(err => {
-    res.redirect('/admin/products');
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
   });
 };
 
@@ -78,7 +84,8 @@ exports.postEditProduct = (req, res, next) => {
     product.title = updatedTitle;
     product.description = updatedDesc;
     if (image) {
-      product.imageUrl = image.path;
+      deleteFile('storage/' + product.imageUrl)
+      product.imageUrl = removeStoragePrefix(image.path);
     }
     product.price = updatedPrice
     return product.save()
@@ -88,7 +95,9 @@ exports.postEditProduct = (req, res, next) => {
       res.redirect('/admin/products')
     })
     .catch(err => {
-
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      next(error);
     });
 };
 
@@ -102,12 +111,27 @@ exports.getProducts = (req, res, next) => {
       activeShop: true,
       productCSS: true
     });
-  }).catch(error => {
+  }).catch(err => {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
   });
 };
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteById(prodId);
-  res.redirect('/admin/products');
+  Product.findByPk(prodId).then(product => {
+    if (!product) {
+      return next(new Error('Product not found.'))
+    }
+    deleteFile('storage/' + product.imageUrl, (err) => {
+
+    })
+    return product.destroy()
+  }).then(result => {
+    res.redirect('/admin/products');
+  }).catch(err => { 
+    console.log('err')
+    console.log(err)
+  })
 };

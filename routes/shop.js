@@ -4,20 +4,24 @@ const express = require('express');
 
 const shopController = require('../controllers/shop');
 
+const AuthMiddleware = require('../middleware/auth')
+
 const router = express.Router();
 
 router.get('/', shopController.getIndex);
 
 router.get('/products/:productId', shopController.getProduct);
 
-router.get('/cart', shopController.getCart);
+router.get('/cart', AuthMiddleware, shopController.getCart);
 
-router.post('/cart', shopController.postCart);
+router.post('/cart', AuthMiddleware, shopController.postCart);
 
-router.post('/cart-delete-item', shopController.postCartDeleteProduct);
+router.post('/cart-delete-item', AuthMiddleware, shopController.postCartDeleteProduct);
 
-router.post('/create-order', shopController.postOrder);
+router.post('/create-order', AuthMiddleware, shopController.postOrder);
 
-router.get('/orders', shopController.getOrders);
+router.get('/orders', AuthMiddleware, shopController.getOrders);
+
+router.get('/orders/:orderId/invoice', AuthMiddleware, shopController.downloadInvoice);
 
 module.exports = router;

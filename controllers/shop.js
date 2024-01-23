@@ -1,4 +1,9 @@
+const fs = require('fs')
+const ejs = require('ejs');
+const pdf = require('html-pdf');
 const Product = require('../models/product');
+const Order = require('../models/order');
+const path = require('path');
 const ITEMS_PER_PAGE = 10;
 
 exports.getProduct = (req, res, next) => {
@@ -35,7 +40,10 @@ exports.getIndex = (req, res, next) => {
           lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
         }
       });
-    }).catch(error => {
+    }).catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      next(error);
     });
 };
 
@@ -56,7 +64,9 @@ exports.getCart = (req, res, next) => {
       products: products
     });
   }).catch(err => {
-    console.log(err)
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
   });
 };
 
@@ -92,7 +102,9 @@ exports.postCart = (req, res, next) => {
     .then(cart => {
       res.redirect('/cart');
     }).catch(err => {
-
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      next(error);
     })
 };
 
@@ -106,6 +118,10 @@ exports.postCartDeleteProduct = (req, res, next) => {
     return product.cartItem.destroy();
   }).then(cartItem => {
     res.redirect('/cart');
+  }).catch(err => {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
   })
 };
 
@@ -140,5 +156,54 @@ exports.postOrder = (req, res, next) => {
     return fetchedCart.setProducts(null)
   }).then(result => {
     res.redirect('/orders')
-  }).catch(err => console.log(err))
+  }).catch(err => {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    next(error);
+  })
+}
+
+exports.downloadInvoice = (req, res, next) => {
+  const orderId = req.params.orderId;
+  const invoiceName = 'Invoice-' + orderId + '.pdf';
+  let userOrder;
+
+  Order.findOne({ where: { id: orderId }, include: ['products'] })
+    .then(order => {
+      if (!order) {
+        return next(new Error('No Order Found'))
+      }
+      userOrder = order
+      return order.getUser();
+    })
+    .then(user => {
+      if (req.user.id.toString() !== user.id.toString()) {
+        return next(new Error('Unauthorized access'))
+      }
+
+      ejs.renderFile(path.join(__dirname, '../views/pdf/invoice.ejs'), {
+        pageTitle: invoiceName,
+        order: userOrder
+      }, (err, html) => {
+        if (err) {
+          throw new Error('Error reading pdf template');
+        }
+        // Options for the PDF generation
+        const options = {
+          format: 'Letter',
+        };
+        const pdfFilePath = path.join(__dirname, '../storage/invoices', invoiceName);
+        // Generate PDF from HTML
+        pdf.create(html, options).toFile(pdfFilePath, (err, result) => {
+          if (err) {
+            throw new Error('Error reading pdf template');
+          }
+          res.sendFile(result.filename);
+        });
+      });
+    }).catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      next(error);
+    })
 }
