@@ -1,6 +1,7 @@
 const path = require('path');
 
 const csurf = require("tiny-csrf");
+const fs = require("fs");
 const express = require('express');
 const multer = require('multer');
 const bodyParser = require('body-parser');
@@ -14,6 +15,10 @@ const helpers = require('./util/helpers');
 const errorController = require('./controllers/error');
 const databaseOptions = require('./util/database-options')
 const sessionStore = new MySQLStore(databaseOptions);
+const compression = require('compression');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
 
 const app = express();
 
@@ -49,6 +54,10 @@ const Cart = require('./models/cart');
 const CartItem = require('./models/cart-item');
 const Order = require('./models/order');
 const OrderItem = require('./models/order-item');
+
+app.use(helmet())
+app.use(compression())
+app.use(morgan('combined', { stream: accessLogStream }))
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ dest: 'storage/images', storage: fileStorage, fileFilter: fileFilters }).single('image'))
